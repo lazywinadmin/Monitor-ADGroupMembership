@@ -42,7 +42,7 @@ Finally at the end of the report, information on when, where and who ran the scr
 ``` powershell
 .\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
 ```
-![alt tag](images/AD-GROUP-Monitor_MemberShip_Running01.png?raw=true)
+![alt tag](images/AD-GROUP-Monitor_MemberShip_Running01.png)
 
 
 # Workflow

@@ -5,11 +5,11 @@ AD-GROUP-Monitor_MemberShip
 
 PowerShell script to monitor Active Directory groups and send an email when someone is changing the membership
 
-# Report Example
+### Report Example
 
-![alt tag](images/AD-GROUP-Monitor_MemberShip_Report01.png)
+![alt tag](https://github.com/lazywinadmin/AD-GROUP-Monitor_MemberShip/blob/master/images/Report.png "Report Example")
 
-# Features
+### Features
 
 You can specify the group Name, SID(Security Identifier), GUID(Globally Unique IDentifier) or DN (Distinguished Name).
 Group name like 'DOMAIN\GROUPNAME' will also work.
@@ -29,7 +29,7 @@ You can see the user 'catfx' was removed from the group FX\FXGROUP
 Also, If the script find some Change History files for this group, it will be added to the report.
 Finally at the end of the report, information on when, where and who ran the script.
 
-# Requirements
+### Requirements
 * Read Permission in Active Directory on the monitored groups
 * Module
  * Microsoft ActiveDirectory Module
@@ -38,18 +38,19 @@ Finally at the end of the report, information on when, where and who ran the scr
 * A Scheduled Task (in order to check every X seconds/minutes/hours)
 
 
-# Using the Script
+### Using the Script
 ``` powershell
 .\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
 ```
-![alt tag](images/AD-GROUP-Monitor_MemberShip_Running01.png)
+![alt tag](https://github.com/lazywinadmin/AD-GROUP-Monitor_MemberShip/blob/master/images/Running.png "Running the Script")
 
 
-# Workflow
+### Workflow
 
 ![alt tag](images/Monitor_ActiveDirectory_Group_Membership_Change-Workflow.png)
 
-# Version History
+### Version History
+```
 * 2.0.2	2015.01.14
  * FIX an small issue with the $StateFile which did not contains the domain
  * ADD the property Name into the final output.
@@ -121,3 +122,4 @@ Finally at the end of the report, information on when, where and who ran the scr
 
 * 1.0 	2012.02.01
  * Initial Version
+```

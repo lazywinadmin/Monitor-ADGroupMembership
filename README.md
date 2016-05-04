@@ -5,11 +5,12 @@ AD-GROUP-Monitor_MemberShip
 
 PowerShell script to monitor Active Directory groups and send an email when someone is changing the membership
 
-### Report Example
+## Report Example
 
 ![alt tag](https://github.com/lazywinadmin/AD-GROUP-Monitor_MemberShip/blob/master/images/Report.png "Report Example")
 
-### Features
+
+## Features
 
 You can specify the group Name, SID(Security Identifier), GUID(Globally Unique IDentifier) or DN (Distinguished Name).
 Group name like 'DOMAIN\GROUPNAME' will also work.
@@ -29,7 +30,7 @@ You can see the user 'catfx' was removed from the group FX\FXGROUP
 Also, If the script find some Change History files for this group, it will be added to the report.
 Finally at the end of the report, information on when, where and who ran the script.
 
-### Requirements
+## Requirements
 * Read Permission in Active Directory on the monitored groups
 * Module
  * Microsoft ActiveDirectory Module
@@ -38,14 +39,111 @@ Finally at the end of the report, information on when, where and who ran the scr
 * A Scheduled Task (in order to check every X seconds/minutes/hours)
 
 
-### Using the Script
+## Using the script
+
+``` powershell
+.\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
+```
+
+#### The first time you run the script
+You'll notice that the script is creating folders and files.
+At this point you won't get any email report. Example:
+
 ``` powershell
 .\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
 ```
 ![alt tag](https://github.com/lazywinadmin/AD-GROUP-Monitor_MemberShip/blob/master/images/Running.png "Running the Script")
 
+```
+VERBOSE: Creating the Output Folder : C:\LazyWinAdmin\TOOL-MONITOR-AD_Group\Output
+VERBOSE: Creating the ChangeHistory Folder : C:\LazyWinAdmin\TOOL-MONITOR-AD_Group\ChangeHistory
+VERBOSE: GROUP: FXGroup01
+VERBOSE: FXGroup01 - The following file did not exist: FX_FXGROUP01-membership.csv
+VERBOSE: FXGroup01 - Exporting the current membership information into the file:
+FX_FXGROUP01-membership.csv
+VERBOSE: FXGroup01 - Comparing Current and Before
+VERBOSE: FXGroup01 - Compare Block Done !
+VERBOSE: FXGroup01 - No Change
+VERBOSE: GROUP: FXGroup02
+VERBOSE: FXGroup02 - The following file did not exist: FX_FXGROUP02-membership.csv
+VERBOSE: FXGroup02 - Exporting the current membership information into the file:
+FX_FXGROUP02-membership.csv
+VERBOSE: FXGroup02 - Comparing Current and Before
+VERBOSE: FXGroup02 - Compare Block Done !
+VERBOSE: FXGroup02 - No Change
+VERBOSE: Script Completed
+```
+
+Two directories and two files are created:
+ * **2 Files** For each of the group we just queried FXGROUP01 and FXGROUP02. Since these groups are currently empty, the script will add the value "No User or Group" in both files.
+ * **OUTPUT** Directory Each time the script run, It query the group membership in the Active Directory and save the current membership in the files (It won't touch the file if it's the same membership at each check).
+ * **CHANGEHISTORY** Directory contains the list of changes observed by the script. One file per Group per domain, if multiple changes occur, the script will append the change in the same file.
+
+
+
+Output Directory contains the **2 files** for each monitored groups
+![alt tag](images/first_time02.png)
+
+
+Each file contains the current membership of each groups. Since these are empty the script just create the following file with two properties SamAccountName and Name with the value "No User or Group"
+![alt tag](images/first_time03.png)
+
+
+The ChangeHistory Directory is empty at this point since no change was observed by the script.
+![alt tag](images/first_time04.png)
+
+
+#### Running the script a second time (without change on the groups)
+If I re-run the script  we will get the following output.
+The script does not see any change in the membership by comparing the content of the file FX_FXGROUP01-membership.csv and the current membership in Active Directory for this group.
+![alt tag](images/first_time05.png)
+
+
+#### Running the script after a change
+Ok now let's make one change and add one account in FXGROUP01 and run the script again.
+
+``` powershell
+PS C:\LazyWinAdmin\TOOL-MONITOR-AD_Group> .\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
+```
+
+```
+VERBOSE: GROUP: FXGroup01
+VERBOSE: FXGroup01 - The following file Exists: FX_FXGROUP01-membership.csv
+VERBOSE: FXGroup01 - Comparing Current and Before
+VERBOSE: FXGroup01 - Compare Block Done !
+VERBOSE: FXGroup01 - Some changes found
+DateTime       : 20131118-08:51:10
+State          : Removed
+DisplayName    :
+SamAccountName : No User or Group
+DN             :
+
+DateTime       : 20131118-08:51:10
+State          : Added
+DisplayName    :
+SamAccountName : fxtest
+DN             : CN=fxtest,CN=Users,DC=FX,DC=LAB
+VERBOSE: FXGroup01 - Get the change history for this group
+VERBOSE: FXGroup01 - Change history files: 0
+VERBOSE: FXGroup01 - Save changes to a ChangesHistory file
+VERBOSE: FXGroup01 - Preparing the notification email...
+VERBOSE: FXGroup01 - Email Sent.
+VERBOSE: FXGroup01 - Exporting the current membership to FX_FXGROUP01-membership.csv
+VERBOSE: GROUP: FXGroup02
+VERBOSE: FXGroup02 - The following file Exists: FX_FXGROUP02-membership.csv
+VERBOSE: FXGroup02 - Comparing Current and Before
+VERBOSE: FXGroup02 - Compare Block Done !
+VERBOSE: FXGroup02 - No Change
+VERBOSE: Script Completed
+
+```
+
+As you can see One account was added **"fxtest"** and the default **"No User or Group"** was removed by the script
+![alt tag](images/first_time06.png)
 
 ### Workflow
+
+Here is the workflow of the script
 
 ![alt tag](images/Monitor_ActiveDirectory_Group_Membership_Change-Workflow.png)
 

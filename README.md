@@ -1,9 +1,14 @@
-AD-GROUP-Monitor_MemberShip
-============
+# AD-GROUP-Monitor_MemberShip
 
 [Blog Articles on LazyWinAdmin.com](http://www.lazywinadmin.com/2013/11/update-powershell-monitor-and-report.html)
 
 PowerShell script to monitor Active Directory groups and send an email when someone is changing the membership
+
+## Installation
+#### Download from PowerShell Gallery (PowerShell v5+)
+``` powershell
+Install-Module -name ADSIPS
+```
 
 ## Report Example
 

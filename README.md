@@ -1,4 +1,4 @@
-# AD-GROUP-Monitor_MemberShip
+# Monitor-ADGroupMembership
 
 [Blog Articles on LazyWinAdmin.com](http://www.lazywinadmin.com/2013/11/update-powershell-monitor-and-report.html)
 
@@ -7,7 +7,7 @@ PowerShell script to monitor Active Directory groups and send an email when some
 ## Installation
 #### Download from PowerShell Gallery (PowerShell v5+)
 ``` powershell
-Install-Module -name ADSIPS
+Install-Script -name Monitor-ADGroupMembership
 ```
 
 ## Report Example
@@ -47,7 +47,7 @@ Finally at the end of the report, information on when, where and who ran the scr
 ## Using the script
 
 ``` powershell
-.\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
+.\Monitor-ADGroupMembership.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
 ```
 
 #### The first time you run the script
@@ -55,13 +55,13 @@ You'll notice that the script is creating folders and files.
 At this point you won't get any email report. Example:
 
 ``` powershell
-.\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
+.\Monitor-ADGroupMembership.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
 ```
 ![alt tag](https://github.com/lazywinadmin/AD-GROUP-Monitor_MemberShip/blob/master/images/Running.png "Running the Script")
 
 ```
-VERBOSE: Creating the Output Folder : C:\LazyWinAdmin\TOOL-MONITOR-AD_Group\Output
-VERBOSE: Creating the ChangeHistory Folder : C:\LazyWinAdmin\TOOL-MONITOR-AD_Group\ChangeHistory
+VERBOSE: Creating the Output Folder : C:\LazyWinAdmin\Monitor-ADGroupMembership\Output
+VERBOSE: Creating the ChangeHistory Folder : C:\LazyWinAdmin\Monitor-ADGroupMembership\ChangeHistory
 VERBOSE: GROUP: FXGroup01
 VERBOSE: FXGroup01 - The following file did not exist: FX_FXGROUP01-membership.csv
 VERBOSE: FXGroup01 - Exporting the current membership information into the file:
@@ -108,7 +108,7 @@ The script does not see any change in the membership by comparing the content of
 Ok now let's make one change and add one account in FXGROUP01 and run the script again.
 
 ``` powershell
-PS C:\LazyWinAdmin\TOOL-MONITOR-AD_Group> .\TOOL-MONITOR-AD_Group.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
+PS C:\LazyWinAdmin\Monitor-ADGroupMembership> .\Monitor-ADGroupMembership.ps1 -group "FXGroup01","FXGroup02" -Emailfrom Reporting@fx.lab -Emailto "Catfx@fx.lab" -EmailServer 192.168.1.10 -Verbose
 ```
 
 ```

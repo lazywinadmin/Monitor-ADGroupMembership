@@ -4,6 +4,7 @@
 
 PowerShell script to monitor Active Directory groups and send an email when someone is changing the membership
 
+
 ## Installation
 #### Download from PowerShell Gallery (PowerShell v5+)
 ``` powershell

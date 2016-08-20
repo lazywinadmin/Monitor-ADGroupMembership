@@ -316,7 +316,7 @@ BEGIN
 		
 		# Set the Date and Time variables format
 		$DateFormat = Get-Date -Format "yyyyMMdd_HHmmss"
-		$ReportDateFormat = Get-Date -Format "yyyy\MM\dd HH:mm:ss"
+		#$ReportDateFormat = Get-Date -Format "yyyy\MM\dd HH:mm:ss"
 		
 		
 		# Active Directory Module
@@ -327,14 +327,14 @@ BEGIN
 			IF (-not (Get-Module -Name ActiveDirectory -ErrorAction SilentlyContinue -ErrorVariable ErrorBEGINGetADModule))
 			{
 				Write-Verbose -Message "[BEGIN] Active Directory Module - Loading"
-				Import-Module -Name ActiveDirectory -ErrorAction SilentlyContinue -ErrorVariable ErrorBEGINAddADModule
+				Import-Module -Name ActiveDirectory -ErrorAction Stop -ErrorVariable ErrorBEGINAddADModule
 				Write-Verbose -Message "[BEGIN] Active Directory Module - Loaded"
-				$global:ADModule = $true
+				$script:ADModule = $true
 			}
 			ELSE
 			{
 				Write-Verbose -Message "[BEGIN] Active Directory module seems loaded"
-				$global:ADModule = $true
+				$script:ADModule = $true
 			}
 		}
 		ELSE # Else we try to load Quest Ad Cmdlets
@@ -346,11 +346,12 @@ BEGIN
 				Write-Verbose -Message "[BEGIN] Quest Active Directory - Loading"
 				Add-PSSnapin -Name Quest.ActiveRoles.ADManagement -ErrorAction Stop -ErrorVariable ErrorBEGINAddQuestAd
 				Write-Verbose -Message "[BEGIN] Quest Active Directory - Loaded"
-				$global:QuestADSnappin = $true
+				$script:QuestADSnappin = $true
 			}
 			ELSE
 			{
 				Write-Verbose -Message "[BEGIN] Quest AD Snapin seems loaded"
+				$script:QuestADSnappin = $true
 			}
 		}
 		

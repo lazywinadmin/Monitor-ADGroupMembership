@@ -28,13 +28,14 @@
 
 
 #>
-<#
-.SYNOPSIS
-	This script is monitoring group(s) in Active Directory and send an email when someone is changing the membership.
 
+<#
 .DESCRIPTION
 	This script is monitoring group(s) in Active Directory and send an email when someone is changing the membership.
 	It will also report the Change History made for this/those group(s).
+
+.SYNOPSIS
+	This script is monitoring group(s) in Active Directory and send an email when someone is changing the membership.
 
 .PARAMETER Group
 	Specify the group(s) to query in Active Directory.
@@ -243,7 +244,6 @@
 #>
 
 #requires -version 3.0
-#Requires -Module ActiveDirectory
 
 [CmdletBinding(DefaultParameterSetName = "Group")]
 PARAM (

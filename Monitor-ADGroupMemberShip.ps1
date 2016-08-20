@@ -1,3 +1,33 @@
+<#PSScriptInfo
+
+.VERSION 2.0.3.0
+
+.GUID 28826cd6-0760-4e00-aae6-1330e60118ee
+
+.AUTHOR Francois-Xavier Cat
+
+.COMPANYNAME LazyWinAdmin.Com
+
+.COPYRIGHT (c) 2016 Francois-Xavier Cat. All rights reserved. Licensed under The MIT License (MIT)
+
+.TAGS ActiveDirectory Group GroupMembership Monitor Report ADSI Quest
+
+.LICENSEURI https://github.com/lazywinadmin/Monitor-ADGroupMembership/blob/master/LICENSE
+
+.PROJECTURI https://github.com/lazywinadmin/Monitor-ADGroupMembership
+
+.ICONURI 
+
+.EXTERNALMODULEDEPENDENCIES 
+
+.REQUIREDSCRIPTS 
+
+.EXTERNALSCRIPTDEPENDENCIES 
+
+.RELEASENOTES
+
+
+#>
 <#
 .SYNOPSIS
 	This script is monitoring group(s) in Active Directory and send an email when someone is changing the membership.

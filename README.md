@@ -11,6 +11,14 @@ PowerShell script to monitor Active Directory groups and send an email when some
 Install-Script -name Monitor-ADGroupMembership
 ```
 
+## Schedule the script
+On frequent question I get for this script is how to use the Task Scheduler to run this script.
+
+The trick here is to handle the quotes. Here is an example
+```
+"C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe" -command "C:\Scripts\LazyWinAdmin\Monitor-ADGroupMembership.ps1 -group \"Domain Admins\",\"Group1\",\"Enterprise Admins\",\"Group2\",\"Group3\",\"Group4\",\"Group5\",\"Group6\" -Emailfrom \"xxx@mydomain.com\" -Emailto \"xxx@otherdomain.com\" -Emailserver \"smtp.mydomain.local\""
+```
+
 ## Report Example
 
 ![alt tag](https://github.com/lazywinadmin/AD-GROUP-Monitor_MemberShip/blob/master/images/Report.png "Report Example")

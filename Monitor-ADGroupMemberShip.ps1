@@ -89,6 +89,18 @@
 	Specify if you want to save a local copy of the Report.
 	It will be saved under the directory "HTML".
 
+.PARAMETER IncludeMembers
+	Specify if you want to include all members in the Report.
+	
+.PARAMETER AlwayseReport
+	Specify if you want to generate a Report each tme.
+
+.PARAMETER OneReport
+	Specify if you want to only send one email with all group report as attachment
+
+.PARAMETER ExtendedProperty
+	Specify if you want to add Enabled and PasswordExpired Attribute on members in the report
+	
 .EXAMPLE
 	.\AD-GROUP-Monitor_MemberShip.ps1 -Group "FXGroup" -EmailFrom "From@Company.com" -EmailTo "To@Company.com" -EmailServer "mail.company.com"
 
@@ -231,6 +243,13 @@
 		ADD Support to export the report to a HTML file (-HTMLLog) It will save
 			the report under the folder HTML
 		ADD Support for alternative Email Encoding: Body and Subject. Default is ASCII.
+	
+	2.0.3   2017.06.30
+		ADD 'IncludeMembers' Switch to list all members in the report.
+		ADD 'AlwayseReport' switch to send report each run.
+		ADD 'OneReport' Switch to have it only send one email, with each group 
+			report in the mail as attachment.
+		ADD 'ExtendedProperty' switch to add Enabled and PasswordExpired to the member list.
 
 
 	TODO:
@@ -292,7 +311,19 @@ PARAM (
 	[String]$EmailEncoding="ASCII",
 
 	[Parameter()]
-	[Switch]$HTMLLog
+	[Switch]$HTMLLog,
+    
+    [Parameter()]
+	[Switch]$IncludeMembers,
+
+    [Parameter()]
+	[Switch]$AlwayseReport,
+    
+    [Parameter()]
+	[Switch]$OneReport,
+    
+    [Parameter()]
+	[Switch]$ExtendedProperty
 )
 BEGIN
 {
@@ -599,7 +630,9 @@ PROCESS
 						IF ($PSBoundParameters['Server']) { $GroupMemberSplatting.Server = $Server }
 						
 						# Look for Members
-						$Members = Get-ADGroupMember @GroupMemberSplatting -Recursive -ErrorAction Stop -ErrorVariable ErrorProcessGetADGroupMember | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
+						$Members = Get-ADGroupMember @GroupMemberSplatting -Recursive -ErrorAction Stop -ErrorVariable ErrorProcessGetADGroupMember
+						$Members = $members | get-aduser -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
+                        
 					}
 					if ($QuestADSnappin)
 					{
@@ -660,7 +693,7 @@ PROCESS
 					#>
 					
 					# CHANGES FOUND !
-					If ($Changes)
+					If ($Changes -or $AlwayseReport)
 					{
 						Write-Verbose -Message "[PROCESS] $item - Some changes found"
 						$changes | Select-Object -Property DateTime, State, Name, SamAccountName, DN
@@ -696,6 +729,24 @@ PROCESS
 							Write-Verbose -Message "[PROCESS] $item - Change history process completed"
 						}#IF($ChangeHistoryFiles)
 						
+						if($IncludeMembers) {
+							$infoHistory = @()
+							Write-Verbose -Message "[PROCESS] $item - Full list files - Loading $file"
+							FOREACH ($obj in $ImportCSV)
+							{
+								$Output = "" | Select-Object -Property Name, SamAccountName, DN,Enabled,PasswordExpired
+								#$Output.DateTime = $file.CreationTime.GetDateTimeFormats("u") | Out-String
+								$Output.Name = $obj.Name
+								$Output.SamAccountName = $obj.SamAccountName
+								$Output.DN = $obj.distinguishedName
+								if($ExtendedProperty) {
+									$Output.Enabled = $obj.Enabled
+									$Output.PasswordExpired = $obj.PasswordExpired
+								}
+								$infoHistory = $infoHistory + $Output
+							}#FOREACH $obj in Import-csv $file
+							Write-Verbose -Message "[PROCESS] $item - Full list process completed"
+						}#IF($IncludeMembers)
 						# CHANGE(S) EXPORT TO CSV
 						Write-Verbose -Message "[PROCESS] $item - Save changes to a ChangesHistory file"
 						
@@ -725,16 +776,24 @@ PROCESS
 						$body += "<u>Group Scope/Type:</u> $($GroupName.GroupScope) / $($GroupName.GroupType)<br>"
 						$body += "</p>"
 						
-						$body += "<h3> Membership Change"
-						$body += "</h3>"
-						$body += "<i>The membership of this group changed. See the following Added or Removed members.</i>"
+						if($Changes) {
+						    $body += "<h3> Membership Change"
+						    $body += "</h3>"
+						    $body += "<i>The membership of this group changed. See the following Added or Removed members.</i>"
 						
-						# Removing the old DisplayName Property
-						$Changes = $changes | Select-Object -Property DateTime, State,Name, SamAccountName, DN
+						    # Removing the old DisplayName Property
+						    $Changes = $changes | Select-Object -Property DateTime, State,Name, SamAccountName, DN
 						
-						$body += $changes | ConvertTo-Html -head $head | Out-String
-						$body += "<br><br><br>"
-						IF ($ChangesHistoryFiles)
+						    $body += $changes | ConvertTo-Html -head $head | Out-String
+						    $body += "<br><br><br>"
+						}
+						else {
+							$body += "<h3> Membership Change"
+							$body += "</h3>"
+							$body += "<i>No changes.</i>"
+						}
+
+						IF ($infoChangeHistory)
 						{
 							# Removing the old DisplayName Property
 							$infoChangeHistory = $infoChangeHistory | Select-Object -Property DateTime, State, Name, SamAccountName, DN
@@ -743,32 +802,39 @@ PROCESS
 							$body += "<i>List of the previous changes on this group observed by the script</i>"
 							$body += $infoChangeHistory | Sort-Object -Property DateTime -Descending | ConvertTo-Html -Fragment -PreContent $Head2 | Out-String
 						}
+						if($infoHistory) {
+              # Removing the old DisplayName Property
+							$body += "<h3>Members</h3>"
+							$body += "<i>List of all members</i>"
+							$body += $infoHistory | Sort-Object -Property SamAccountName -Descending | ConvertTo-Html -Fragment -PreContent $Head2 | Out-String
+						}
+
 						$body = $body -replace "Added", "<font color=`"blue`"><b>Added</b></font>"
 						$body = $body -replace "Removed", "<font color=`"red`"><b>Removed</b></font>"
 						$body += $Report
+						if(!($OneReport)) {
+						    #  Preparing the Email properties
+						    $SmtpClient = New-Object -TypeName system.net.mail.smtpClient
+						    $SmtpClient.host = $EmailServer
+						    $MailMessage = New-Object -TypeName system.net.mail.mailmessage
+						    #$MailMessage.from = $EmailFrom.Address
+						    $MailMessage.from = $EmailFrom
+						    #FOREACH ($To in $Emailto){$MailMessage.To.add($($To.Address))}
+						    FOREACH ($To in $Emailto) { $MailMessage.To.add($($To)) }
+						    $MailMessage.IsBodyHtml = 1
+						    $MailMessage.Subject = $EmailSubject
+						    $MailMessage.Body = $Body
 						
-						#  Preparing the Email properties
-						$SmtpClient = New-Object -TypeName system.net.mail.smtpClient
-						$SmtpClient.host = $EmailServer
-						$MailMessage = New-Object -TypeName system.net.mail.mailmessage
-						#$MailMessage.from = $EmailFrom.Address
-						$MailMessage.from = $EmailFrom
-						#FOREACH ($To in $Emailto){$MailMessage.To.add($($To.Address))}
-						FOREACH ($To in $Emailto) { $MailMessage.To.add($($To)) }
-						$MailMessage.IsBodyHtml = 1
-						$MailMessage.Subject = $EmailSubject
-						$MailMessage.Body = $Body
-						
-						#  Encoding
-						$MailMessage.BodyEncoding = [System.Text.Encoding]::$EmailEncoding
-						$MailMessage.SubjectEncoding = [System.Text.Encoding]::$EmailEncoding
+						    #  Encoding
+						    $MailMessage.BodyEncoding = [System.Text.Encoding]::$EmailEncoding
+						    $MailMessage.SubjectEncoding = [System.Text.Encoding]::$EmailEncoding
 
 						
-						#  Sending the Email
-						$SmtpClient.Send($MailMessage)
-						Write-Verbose -Message "[PROCESS] $item - Email Sent."
+						    #  Sending the Email
+						    $SmtpClient.Send($MailMessage)
+						    Write-Verbose -Message "[PROCESS] $item - Email Sent."
 						
-						
+						}
 						# GroupName Membership export to CSV
 						Write-Verbose -Message "[PROCESS] $item - Exporting the current membership to $StateFile"
 						$Members | Export-csv -Path (Join-Path -Path $ScriptPathOutput -ChildPath $StateFile) -NoTypeInformation -Encoding Unicode
@@ -790,6 +856,21 @@ PROCESS
 							# Save HTML File
 							$Body | Out-File -FilePath (Join-Path -Path $ScriptPathHTML -ChildPath $HTMLFileName)
 						}
+						# One Report
+						if ($OneReport) {
+								# Create HTML Directory if it does not exist
+								$ScriptPathOneReport= $ScriptPath + "\OneReport"
+								IF (!(Test-Path -Path $ScriptPathOneReport))
+								{
+									Write-Verbose -Message "[PROCESS] Creating the OneReport Folder : $ScriptPathOneReport"
+									New-Item -Path $ScriptPathOneReport -ItemType Directory | Out-Null
+								}
+								# Define HTML File Name
+								$HTMLFileName = "$($DomainName)_$($RealGroupName)-$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
+								
+								# Save HTML File
+								$Body | Out-File -FilePath (Join-Path -Path $ScriptPathOneReport -ChildPath $HTMLFileName)
+						} # if $OneReport
 						
 						
 					}#IF $Change
@@ -810,7 +891,7 @@ PROCESS
 			{
 				Write-Warning -Message "[PROCESS] Something went wrong"
 				#Write-Warning -Message $_.Exception.Message
-                Write-Warning -Message $Error[0]
+				$_
 				
 				#Quest Snappin Errors
 				if ($ErrorProcessGetQADGroup) { Write-warning -Message "[PROCESS] QUEST AD - Error When querying the group $item in Active Directory" }
@@ -828,12 +909,45 @@ PROCESS
 				Write-Warning -Message $error[0].exception.Message
 			}#CATCH
 		}#FOREACH
+			if($OneReport) {
+				$EmailSubject = "PS MONITORING - Membership Report"
+				#  Preparing the body of the Email
+				$body = "<h2>See Report in Attachment</h2>"
+				#  Preparing the Email properties
+				$SmtpClient = New-Object -TypeName system.net.mail.smtpClient
+				$SmtpClient.host = $EmailServer
+				$MailMessage = New-Object -TypeName system.net.mail.mailmessage
+				#$MailMessage.from = $EmailFrom.Address
+				$MailMessage.from = $EmailFrom
+				#FOREACH ($To in $Emailto){$MailMessage.To.add($($To.Address))}
+				FOREACH ($To in $Emailto) { $MailMessage.To.add($($To)) }
+				$MailMessage.IsBodyHtml = 1
+				$MailMessage.Subject = $EmailSubject
+				$MailMessage.Body = $Body
+				$ScriptPathOneReport= $ScriptPath + "\OneReport"
+				foreach ($attachment in (Get-ChildItem $ScriptPathOneReport) ){
+						$MailMessage.Attachments.Add($attachment.fullname)
+				}			
+
+				#  Encoding
+				$MailMessage.BodyEncoding = [System.Text.Encoding]::$EmailEncoding
+				$MailMessage.SubjectEncoding = [System.Text.Encoding]::$EmailEncoding
+							
+				#  Sending the Email
+				$SmtpClient.Send($MailMessage)
+				$SmtpClient.Dispose()
+				foreach($attach in $MailMessage.Attachments) {$attach.Dispose()}
+				$SmtpClient.Dispose()
+				Get-ChildItem $ScriptPathOneReport | remove-item -Force -Confirm:$false
+				Write-Verbose -Message "[PROCESS] OneReport - Email Sent."
+							
+		} # if $onereport
 	}#TRY
 	CATCH
 	{
 		Write-Warning -Message "[PROCESS] Something wrong happened"
 		#Write-Warning -Message $error[0].exception.message
-        Write-Warning -Message $error[0]
+        $_
 	}
 	
 }#PROCESS
@@ -841,3 +955,4 @@ END
 {
 	Write-Verbose -message "[END] Script Completed"
 }
+

@@ -243,6 +243,7 @@
 		ADD Support to export the report to a HTML file (-HTMLLog) It will save
 			the report under the folder HTML
 		ADD Support for alternative Email Encoding: Body and Subject. Default is ASCII.
+	
 	2.0.3   2017.06.30
 		ADD 'IncludeMembers' Switch to list all members in the report.
 		ADD 'AlwayseReport' switch to send report each run.
@@ -630,7 +631,7 @@ PROCESS
 						
 						# Look for Members
 						$Members = Get-ADGroupMember @GroupMemberSplatting -Recursive -ErrorAction Stop -ErrorVariable ErrorProcessGetADGroupMember
-                        $Members = $members | get-aduser -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
+						$Members = $members | get-aduser -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
                         
 					}
 					if ($QuestADSnappin)
@@ -728,8 +729,8 @@ PROCESS
 							Write-Verbose -Message "[PROCESS] $item - Change history process completed"
 						}#IF($ChangeHistoryFiles)
 						
-                        if($IncludeMembers) {
-                            $infoHistory = @()
+						if($IncludeMembers) {
+							$infoHistory = @()
 							Write-Verbose -Message "[PROCESS] $item - Full list files - Loading $file"
 							FOREACH ($obj in $ImportCSV)
 							{
@@ -738,14 +739,14 @@ PROCESS
 								$Output.Name = $obj.Name
 								$Output.SamAccountName = $obj.SamAccountName
 								$Output.DN = $obj.distinguishedName
-                                if($ExtendedProperty) {
-                                    $Output.Enabled = $obj.Enabled
-                                    $Output.PasswordExpired = $obj.PasswordExpired
+								if($ExtendedProperty) {
+									$Output.Enabled = $obj.Enabled
+									$Output.PasswordExpired = $obj.PasswordExpired
 								}
-                                $infoHistory = $infoHistory + $Output
+								$infoHistory = $infoHistory + $Output
 							}#FOREACH $obj in Import-csv $file
 							Write-Verbose -Message "[PROCESS] $item - Full list process completed"
-                        }#IF($IncludeMembers)
+						}#IF($IncludeMembers)
 						# CHANGE(S) EXPORT TO CSV
 						Write-Verbose -Message "[PROCESS] $item - Save changes to a ChangesHistory file"
 						
@@ -775,7 +776,7 @@ PROCESS
 						$body += "<u>Group Scope/Type:</u> $($GroupName.GroupScope) / $($GroupName.GroupType)<br>"
 						$body += "</p>"
 						
-                        if($Changes) {
+						if($Changes) {
 						    $body += "<h3> Membership Change"
 						    $body += "</h3>"
 						    $body += "<i>The membership of this group changed. See the following Added or Removed members.</i>"
@@ -785,12 +786,12 @@ PROCESS
 						
 						    $body += $changes | ConvertTo-Html -head $head | Out-String
 						    $body += "<br><br><br>"
-                        }
-                        else {
-                            $body += "<h3> Membership Change"
-						    $body += "</h3>"
-						    $body += "<i>No changes.</i>"
-                        }
+						}
+						else {
+							$body += "<h3> Membership Change"
+							$body += "</h3>"
+							$body += "<i>No changes.</i>"
+						}
 
 						IF ($infoChangeHistory)
 						{
@@ -801,12 +802,12 @@ PROCESS
 							$body += "<i>List of the previous changes on this group observed by the script</i>"
 							$body += $infoChangeHistory | Sort-Object -Property DateTime -Descending | ConvertTo-Html -Fragment -PreContent $Head2 | Out-String
 						}
-                        if($infoHistory) {
-                            # Removing the old DisplayName Property
+						if($infoHistory) {
+              # Removing the old DisplayName Property
 							$body += "<h3>Members</h3>"
 							$body += "<i>List of all members</i>"
 							$body += $infoHistory | Sort-Object -Property SamAccountName -Descending | ConvertTo-Html -Fragment -PreContent $Head2 | Out-String
-                        }
+						}
 
 						$body = $body -replace "Added", "<font color=`"blue`"><b>Added</b></font>"
 						$body = $body -replace "Removed", "<font color=`"red`"><b>Removed</b></font>"
@@ -855,21 +856,21 @@ PROCESS
 							# Save HTML File
 							$Body | Out-File -FilePath (Join-Path -Path $ScriptPathHTML -ChildPath $HTMLFileName)
 						}
-                        # One Report
-                        if ($OneReport) {
-                            # Create HTML Directory if it does not exist
-							$ScriptPathOneReport= $ScriptPath + "\OneReport"
-							IF (!(Test-Path -Path $ScriptPathOneReport))
-							{
-								Write-Verbose -Message "[PROCESS] Creating the OneReport Folder : $ScriptPathOneReport"
-								New-Item -Path $ScriptPathOneReport -ItemType Directory | Out-Null
-							}
-                            # Define HTML File Name
-							$HTMLFileName = "$($DomainName)_$($RealGroupName)-$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
-							
-							# Save HTML File
-							$Body | Out-File -FilePath (Join-Path -Path $ScriptPathOneReport -ChildPath $HTMLFileName)
-                        } # if $OneReport
+						# One Report
+						if ($OneReport) {
+								# Create HTML Directory if it does not exist
+								$ScriptPathOneReport= $ScriptPath + "\OneReport"
+								IF (!(Test-Path -Path $ScriptPathOneReport))
+								{
+									Write-Verbose -Message "[PROCESS] Creating the OneReport Folder : $ScriptPathOneReport"
+									New-Item -Path $ScriptPathOneReport -ItemType Directory | Out-Null
+								}
+								# Define HTML File Name
+								$HTMLFileName = "$($DomainName)_$($RealGroupName)-$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
+								
+								# Save HTML File
+								$Body | Out-File -FilePath (Join-Path -Path $ScriptPathOneReport -ChildPath $HTMLFileName)
+						} # if $OneReport
 						
 						
 					}#IF $Change
@@ -890,7 +891,7 @@ PROCESS
 			{
 				Write-Warning -Message "[PROCESS] Something went wrong"
 				#Write-Warning -Message $_.Exception.Message
-                $_
+				$_
 				
 				#Quest Snappin Errors
 				if ($ErrorProcessGetQADGroup) { Write-warning -Message "[PROCESS] QUEST AD - Error When querying the group $item in Active Directory" }
@@ -908,40 +909,39 @@ PROCESS
 				Write-Warning -Message $error[0].exception.Message
 			}#CATCH
 		}#FOREACH
-        if($OneReport) {
-            $EmailSubject = "PS MONITORING - Membership Report"
-						
-			#  Preparing the body of the Email
-			$body = "<h2>See Report in Attachment</h2>"
-			#  Preparing the Email properties
-			$SmtpClient = New-Object -TypeName system.net.mail.smtpClient
-			$SmtpClient.host = $EmailServer
-			$MailMessage = New-Object -TypeName system.net.mail.mailmessage
-			#$MailMessage.from = $EmailFrom.Address
-			$MailMessage.from = $EmailFrom
-			#FOREACH ($To in $Emailto){$MailMessage.To.add($($To.Address))}
-			FOREACH ($To in $Emailto) { $MailMessage.To.add($($To)) }
-			$MailMessage.IsBodyHtml = 1
-			$MailMessage.Subject = $EmailSubject
-			$MailMessage.Body = $Body
-            $ScriptPathOneReport= $ScriptPath + "\OneReport"
-            foreach ($attachment in (Get-ChildItem $ScriptPathOneReport) ){
-                $MailMessage.Attachments.Add($attachment.fullname)
-            }			
+			if($OneReport) {
+				$EmailSubject = "PS MONITORING - Membership Report"
+				#  Preparing the body of the Email
+				$body = "<h2>See Report in Attachment</h2>"
+				#  Preparing the Email properties
+				$SmtpClient = New-Object -TypeName system.net.mail.smtpClient
+				$SmtpClient.host = $EmailServer
+				$MailMessage = New-Object -TypeName system.net.mail.mailmessage
+				#$MailMessage.from = $EmailFrom.Address
+				$MailMessage.from = $EmailFrom
+				#FOREACH ($To in $Emailto){$MailMessage.To.add($($To.Address))}
+				FOREACH ($To in $Emailto) { $MailMessage.To.add($($To)) }
+				$MailMessage.IsBodyHtml = 1
+				$MailMessage.Subject = $EmailSubject
+				$MailMessage.Body = $Body
+				$ScriptPathOneReport= $ScriptPath + "\OneReport"
+				foreach ($attachment in (Get-ChildItem $ScriptPathOneReport) ){
+						$MailMessage.Attachments.Add($attachment.fullname)
+				}			
 
-			#  Encoding
-			$MailMessage.BodyEncoding = [System.Text.Encoding]::$EmailEncoding
-			$MailMessage.SubjectEncoding = [System.Text.Encoding]::$EmailEncoding
-
-						
-			#  Sending the Email
-			$SmtpClient.Send($MailMessage)
-            $SmtpClient.Dispose()
-            Start-Sleep -Seconds 2
-            Get-ChildItem $ScriptPathOneReport | remove-item -Force -Confirm:$false
-			Write-Verbose -Message "[PROCESS] OneReport - Email Sent."
-						
-		}
+				#  Encoding
+				$MailMessage.BodyEncoding = [System.Text.Encoding]::$EmailEncoding
+				$MailMessage.SubjectEncoding = [System.Text.Encoding]::$EmailEncoding
+							
+				#  Sending the Email
+				$SmtpClient.Send($MailMessage)
+				$SmtpClient.Dispose()
+				foreach($attach in $MailMessage.Attachments) {$attach.Dispose()}
+				$SmtpClient.Dispose()
+				Get-ChildItem $ScriptPathOneReport | remove-item -Force -Confirm:$false
+				Write-Verbose -Message "[PROCESS] OneReport - Email Sent."
+							
+		} # if $onereport
 	}#TRY
 	CATCH
 	{

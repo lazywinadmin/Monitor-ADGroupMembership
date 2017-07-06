@@ -237,3 +237,37 @@ Here is the workflow of the script
 * 1.0 	2012.02.01
  * Initial Version
 ```
+
+## Help !!
+Would love contributors, suggestions, feedback, and other help! Feel free to open an Issue ticket
+
+### Guidelines
+* Don't use Write-Host
+* Always use explicit parameter names, don't assume position
+* Don't use Aliases
+* If you want to show informational information use Write-Verbose
+* If you use Verbose, show the name of the function, you can do this:
+```powershell
+# Define this variable a the beginning
+$ScriptName = (Get-Variable -name MyInvocation -Scope 0 -ValueOnly).Mycommand
+
+# Show your verbose message this way
+Write-Verbose -Message "[$ScriptName] Querying system X"
+```
+* You need to have Error Handling (TRY/CATCH)
+* Return terminating error using ```$PSCmdlet.ThrowTerminatingError($_)```
+* Think about the next guy, document your function, help them understand what you are achieving, give at least one example
+* Implement appropriate WhatIf/Confirm support if you function is changing something
+
+## TODO (not in a specific order)
+- [ ] Add Pester test
+- [ ] Update documentation, possibly add support for [ReadTheDocs](http://docs.readthedocs.io/en/latest/index.html) to help Adoption
+- [ ] Add Switch to make the Group summary Optional (info: Description,DN,CanonicalName,SID, Scope, Type)
+- [ ] Current Member Count, Added Member count, Removed Member Count
+- [ ] Switch to Show all the Current Members (Name, Department, Role, EMail)
+- [ ] Possibility to Ignore some groups
+- [ ] Email Credential
+- [ ] Recursive Membership search
+- [ ] Switch to save a local copy of the HTML report (maybe put this by default)
+- [ ] Add support for ADSI and set by default once operational
+- [ ] See [other Issues reported](https://github.com/lazywinadmin/Monitor-ADGroupMembership/issues)

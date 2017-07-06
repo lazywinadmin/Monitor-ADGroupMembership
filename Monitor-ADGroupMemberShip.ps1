@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 2.0.4
+.VERSION 2.0.5
 
 .GUID 28826cd6-0760-4e00-aae6-1330e60118ee
 
@@ -255,6 +255,9 @@
 		FIX Minor typos
 		Update CATCH Blow to throw the error
 		Update verbose and messages to include the script name
+	
+	2.0.5 2017.07.04
+		FIX member liste showing in report were the history, not current.
 
 	TODO:
 		-Add Switch to make the Group summary Optional (info: Description,DN,CanonicalName,SID, Scope, Type)
@@ -734,9 +737,9 @@ PROCESS
 						}#IF($ChangeHistoryFiles)
 						
 						if($IncludeMembers) {
-							$infoHistory = @()
-							Write-Verbose -Message "[$ScriptName][PROCESS] $item - Full list files - Loading $file"
-							FOREACH ($obj in $ImportCSV)
+							$infoMembers = @()
+							Write-Verbose -Message "[$ScriptName][PROCESS] $item - Full member list - Loading"
+							FOREACH ($obj in $Members)
 							{
 								$Output = "" | Select-Object -Property Name, SamAccountName, DN,Enabled,PasswordExpired
 								#$Output.DateTime = $file.CreationTime.GetDateTimeFormats("u") | Out-String
@@ -747,9 +750,9 @@ PROCESS
 									$Output.Enabled = $obj.Enabled
 									$Output.PasswordExpired = $obj.PasswordExpired
 								}
-								$infoHistory = $infoHistory + $Output
+								$infoMembers = $infoMembers + $Output
 							}#FOREACH $obj in Import-csv $file
-							Write-Verbose -Message "[$ScriptName][PROCESS] $item - Full list process completed"
+							Write-Verbose -Message "[$ScriptName][PROCESS] $item - Full member list process completed"
 						} #IF($IncludeMembers)
 						
 						
@@ -810,11 +813,10 @@ PROCESS
 							$body += "<i>List of the previous changes on this group observed by the script</i>"
 							$body += $infoChangeHistory | Sort-Object -Property DateTime -Descending | ConvertTo-Html -Fragment -PreContent $Head2 | Out-String
 						}
-						if($infoHistory) {
-              # Removing the old DisplayName Property
+						if($infoMembers) {
 							$body += "<h3>Members</h3>"
 							$body += "<i>List of all members</i>"
-							$body += $infoHistory | Sort-Object -Property SamAccountName -Descending | ConvertTo-Html -Fragment -PreContent $Head2 | Out-String
+							$body += $infoMembers | Sort-Object -Property SamAccountName -Descending | ConvertTo-Html -Fragment -PreContent $Head2 | Out-String
 						}
 
 						$body = $body -replace "Added", "<font color=`"blue`"><b>Added</b></font>"

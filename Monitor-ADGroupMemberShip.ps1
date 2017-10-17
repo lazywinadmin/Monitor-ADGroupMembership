@@ -259,6 +259,9 @@
 	2.0.5 2017.07.04
 		FIX member liste showing in report were the history, not current.
 
+	2.0.6	2017.10.16
+		Add Parameters -UseADModule and -UseQuestSnapin
+
 	TODO:
 		-Add Switch to make the Group summary Optional (info: Description,DN,CanonicalName,SID, Scope, Type)
 			-Current Member Count, Added Member count, Removed Member Count
@@ -330,7 +333,11 @@ PARAM (
 	[Switch]$OneReport,
     
     [Parameter()]
-	[Switch]$ExtendedProperty
+	[Switch]$ExtendedProperty,
+
+	[Switch]$UseADModule,
+	
+    [Switch]$UseQuestSnapin
 )
 BEGIN
 {
@@ -360,41 +367,58 @@ BEGIN
 		
 		
 		# Active Directory Module
-		IF (Get-Module -Name ActiveDirectory -ListAvailable) #verify ad module is installed
+		IF($UseADModule)
 		{
-			Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module"
-			# Verify Ad module is loaded
-			IF (-not (Get-Module -Name ActiveDirectory -ErrorAction SilentlyContinue -ErrorVariable ErrorBEGINGetADModule))
+            Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module - Loading"
+            Import-Module -Name ActiveDirectory -ErrorAction Stop -ErrorVariable ErrorBEGINAddADModule
+            Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module - Loaded"
+            $script:ADModule = $true
+		}
+		ELSEIF($UseQuestSnapin)
+		{
+            Write-Verbose -Message "[$ScriptName][BEGIN] Quest Active Directory - Loading"
+            Add-PSSnapin -Name Quest.ActiveRoles.ADManagement -ErrorAction Stop -ErrorVariable ErrorBEGINAddQuestAd
+            Write-Verbose -Message "[$ScriptName][BEGIN] Quest Active Directory - Loaded"
+            $script:QuestADSnappin = $true
+		}
+		ELSE
+		{
+			IF (Get-Module -Name ActiveDirectory -ListAvailable) #verify ad module is installed
 			{
-				Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module - Loading"
-				Import-Module -Name ActiveDirectory -ErrorAction Stop -ErrorVariable ErrorBEGINAddADModule
-				Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module - Loaded"
-				$script:ADModule = $true
+				Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module"
+				# Verify Ad module is loaded
+				IF (-not (Get-Module -Name ActiveDirectory -ErrorAction SilentlyContinue -ErrorVariable ErrorBEGINGetADModule))
+				{
+					Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module - Loading"
+					Import-Module -Name ActiveDirectory -ErrorAction Stop -ErrorVariable ErrorBEGINAddADModule
+					Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory Module - Loaded"
+					$script:ADModule = $true
+				}
+				ELSE
+				{
+					Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory module seems loaded"
+					$script:ADModule = $true
+				}
 			}
-			ELSE
+			ELSE # Else we try to load Quest Ad Cmdlets
 			{
-				Write-Verbose -Message "[$ScriptName][BEGIN] Active Directory module seems loaded"
-				$script:ADModule = $true
+				Write-Verbose -Message "[$ScriptName][BEGIN] Quest AD Snapin"
+				# Verify Quest Active Directory Snapin is loaded
+				IF (-not (Get-PSSnapin -Name Quest.ActiveRoles.ADManagement -ErrorAction Stop -ErrorVariable ErrorBEGINGetQuestAD))
+				{
+					Write-Verbose -Message "[$ScriptName][BEGIN] Quest Active Directory - Loading"
+					Add-PSSnapin -Name Quest.ActiveRoles.ADManagement -ErrorAction Stop -ErrorVariable ErrorBEGINAddQuestAd
+					Write-Verbose -Message "[$ScriptName][BEGIN] Quest Active Directory - Loaded"
+					$script:QuestADSnappin = $true
+				}
+				ELSE
+				{
+					Write-Verbose -Message "[$ScriptName][BEGIN] Quest AD Snapin seems loaded"
+					$script:QuestADSnappin = $true
+				}
 			}
 		}
-		ELSE # Else we try to load Quest Ad Cmdlets
-		{
-			Write-Verbose -Message "[$ScriptName][BEGIN] Quest AD Snapin"
-			# Verify Quest Active Directory Snapin is loaded
-			IF (-not (Get-PSSnapin -Name Quest.ActiveRoles.ADManagement -ErrorAction Stop -ErrorVariable ErrorBEGINGetQuestAD))
-			{
-				Write-Verbose -Message "[$ScriptName][BEGIN] Quest Active Directory - Loading"
-				Add-PSSnapin -Name Quest.ActiveRoles.ADManagement -ErrorAction Stop -ErrorVariable ErrorBEGINAddQuestAd
-				Write-Verbose -Message "[$ScriptName][BEGIN] Quest Active Directory - Loaded"
-				$script:QuestADSnappin = $true
-			}
-			ELSE
-			{
-				Write-Verbose -Message "[$ScriptName][BEGIN] Quest AD Snapin seems loaded"
-				$script:QuestADSnappin = $true
-			}
-		}
-		
+
 		Write-Verbose -Message "[$ScriptName][BEGIN] Setting HTML Variables"
 		# HTML Report settings
 		$Report = "<p style=`"background-color:white;font-family:consolas;font-size:9pt`">" +

@@ -260,8 +260,10 @@ Write-Verbose -Message "[$ScriptName] Querying system X"
 * Implement appropriate WhatIf/Confirm support if you function is changing something
 
 ## TODO (not in a specific order)
+- [ ] Add support for cross platform domain (see [this issue](https://github.com/lazywinadmin/PowerShell/issues/16)) maybe leverage the new Localaccounts module present in Windows
 - [ ] Add Pester test
 - [ ] Update documentation, possibly add support for [ReadTheDocs](http://docs.readthedocs.io/en/latest/index.html) to help Adoption
+- [ ] Handle Computer objects #29
 - [ ] Add Switch to make the Group summary Optional (info: Description,DN,CanonicalName,SID, Scope, Type)
 - [ ] Current Member Count, Added Member count, Removed Member Count
 - [ ] Switch to Show all the Current Members (Name, Department, Role, EMail)
@@ -269,5 +271,9 @@ Write-Verbose -Message "[$ScriptName] Querying system X"
 - [ ] Email Credential
 - [ ] Recursive Membership search
 - [ ] Switch to save a local copy of the HTML report (maybe put this by default)
-- [ ] Add support for ADSI and set by default once operational
+- [ ] Add support for ADSI and set by default once operational (remove support for Quest AD?)
+- [ ] Able to filter group by name patterns #35
+- [ ] Make Email optional #34
+- [ ] Support for group specified: "Domain\GroupName" #32
+- [ ] Support -Delimiter when doing an export, so we can easily extract a CSV #23
 - [ ] See [other Issues reported](https://github.com/lazywinadmin/Monitor-ADGroupMembership/issues)

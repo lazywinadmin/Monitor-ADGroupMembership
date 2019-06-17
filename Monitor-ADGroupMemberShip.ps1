@@ -637,8 +637,9 @@ PROCESS
 						IF ($PSBoundParameters['Server']) { $GroupMemberSplatting.Server = $Server }
 						
 						# Look for Members
-						$Members = Get-ADGroupMember @GroupMemberSplatting -Recursive -ErrorAction Stop -ErrorVariable ErrorProcessGetADGroupMember
-						$Members = $members | get-aduser -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
+						$MemberObjs = Get-ADGroupMember @GroupMemberSplatting -Recursive -ErrorAction Stop -ErrorVariable ErrorProcessGetADGroupMember
+						$Members = $MemberObjs | Where-Object {$_.objectClass -eq "user"}| get-aduser -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
+                        			$Members += $MemberObjs | Where-Object {$_.objectClass -eq "computer"}| Get-ADComputer -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
                         
 					}
 					if ($QuestADSnappin)

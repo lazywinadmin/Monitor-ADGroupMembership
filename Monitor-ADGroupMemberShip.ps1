@@ -638,7 +638,7 @@ PROCESS
 						
 						# Look for Members
 						$MemberObjs = Get-ADGroupMember @GroupMemberSplatting -Recursive -ErrorAction Stop -ErrorVariable ErrorProcessGetADGroupMember
-						$Members = $MemberObjs | Where-Object {$_.objectClass -eq "user"}| get-aduser -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
+						[Array]$Members = $MemberObjs | Where-Object {$_.objectClass -eq "user"}| get-aduser -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
                         			$Members += $MemberObjs | Where-Object {$_.objectClass -eq "computer"}| Get-ADComputer -Properties PasswordExpired  | Select-Object -Property *,@{ Name = 'DN'; Expression = { $_.DistinguishedName } }
                         
 					}

@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 2.0.5
+.VERSION 2.0.6
 
 .GUID 28826cd6-0760-4e00-aae6-1330e60118ee
 
@@ -258,6 +258,10 @@
 	
 	2.0.5 2017.07.04
 		FIX member liste showing in report were the history, not current.
+
+	2.0.6 2019.08.13 @revoice1
+		Fix issue where $Members only contain one item
+		https://github.com/lazywinadmin/Monitor-ADGroupMembership/pull/42/files
 
 	TODO:
 		-Add Switch to make the Group summary Optional (info: Description,DN,CanonicalName,SID, Scope, Type)

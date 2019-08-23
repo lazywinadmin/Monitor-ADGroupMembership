@@ -69,7 +69,10 @@
 	Specify the File where the Group are listed. DN, SID, GUID, or Domain\Name of the group are accepted.
 
 .PARAMETER EmailServer
-	Specify the Email Server IPAddress/FQDN.
+    Specify the Email Server IPAddress/FQDN.
+    
+.PARAMETER EmailPort
+    Specify the port for the Email Server
 
 .PARAMETER EmailTo
 	Specify the Email Address(es) of the Destination. Example: fxcat@fx.lab
@@ -343,7 +346,7 @@ Begin
 {
     try
     {
-        $SmtpCred = (Get-Credential);
+        $EmailCred = (Get-Credential);
         # Retrieve the Script name
         $ScriptName = $MyInvocation.MyCommand;
 
@@ -823,7 +826,7 @@ Process
                                 Body = $Body
                                 SmtpServer = $EmailServer
                                 Port = $EmailPort
-                                Credential = $SmtpCred
+                                Credential = $EmailCred
                             }
 
                             Send-MailMessage @mailParam -UseSsl -BodyAsHtml;
@@ -914,7 +917,7 @@ Process
                 Body = "<h2>See Report in Attachment</h2>"
                 SmtpServer = $EmailServer
                 Port = $EmailPort
-                Credential = $SmtpCred
+                Credential = $EmailCred
                 Attachments = $attachments
             }
 

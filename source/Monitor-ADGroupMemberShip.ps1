@@ -1,32 +1,17 @@
 <#PSScriptInfo
-
-.VERSION 2.0.6
-
+.VERSION 2.0.7
 .GUID 28826cd6-0760-4e00-aae6-1330e60118ee
-
 .AUTHOR Francois-Xavier Cat
-
 .COMPANYNAME LazyWinAdmin.Com
-
 .COPYRIGHT (c) 2016 Francois-Xavier Cat. All rights reserved. Licensed under The MIT License (MIT)
-
 .TAGS ActiveDirectory Group GroupMembership Monitor Report ADSI Quest
-
 .LICENSEURI https://github.com/lazywinadmin/Monitor-ADGroupMembership/blob/master/LICENSE
-
 .PROJECTURI https://github.com/lazywinadmin/Monitor-ADGroupMembership
-
-.ICONURI 
-
-.EXTERNALMODULEDEPENDENCIES 
-
-.REQUIREDSCRIPTS 
-
-.EXTERNALSCRIPTDEPENDENCIES 
-
+.ICONURI
+.EXTERNALMODULEDEPENDENCIES
+.REQUIREDSCRIPTS
+.EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-
-
 #>
 
 <#
@@ -55,14 +40,14 @@
             object and all its child objects.
 
 .PARAMETER GroupScope
-    Specify the group scope of groups you want to find. Acceptable values are: 
-        'Global'; 
-        'Universal'; 
+    Specify the group scope of groups you want to find. Acceptable values are:
+        'Global';
+        'Universal';
         'DomainLocal'.
 
 .PARAMETER GroupType
-    Specify the group type of groups you want to find. Acceptable values are: 
-        'Security'    
+    Specify the group type of groups you want to find. Acceptable values are:
+        'Security'
         'Distribution'.
 
 .PARAMETER File
@@ -70,7 +55,7 @@
 
 .PARAMETER EmailServer
     Specify the Email Server IPAddress/FQDN.
-    
+
 .PARAMETER EmailPort
     Specify the port for the Email Server
 
@@ -94,7 +79,7 @@
 
 .PARAMETER IncludeMembers
     Specify if you want to include all members in the Report.
-    
+
 .PARAMETER AlwaysReport
     Specify if you want to generate a Report each time.
 
@@ -106,7 +91,7 @@
 
 .PARAMETER EmailCredential
     Specify alternative credential to use. By default it will use the current context account.
-    
+
 .EXAMPLE
     .\AD-GROUP-Monitor_MemberShip.ps1 -Group "FXGroup" -EmailFrom "From@Company.com" -EmailTo "To@Company.com" -EmailServer "mail.company.com"
 
@@ -165,7 +150,7 @@
 
 .NOTES
     NAME:    AD-GROUP-Monitor_MemberShip.ps1
-    AUTHOR:    Francois-Xavier Cat 
+    AUTHOR:    Francois-Xavier Cat
     EMAIL:    info@lazywinadmin.com
     WWW:    www.lazywinadmin
     Twitter:@lazywinadm
@@ -204,29 +189,29 @@
          "DOMAIN_GROUPNAME-ChangesHistory-yyyyMMdd-hhmmss.csv"
         UPDATE Comments Based Help
         ADD Some Variable Parameters
-        
+
     1.5 | 2013.10.13 | Francois-Xavier Cat (@lazywinadmin)
         ADD the full Parameter Names for each Cmdlets used in this script
         ADD Alias to the Group ParameterName
-        
+
     1.6 | 2013.11.21 | Francois-Xavier Cat (@lazywinadmin)
         ADD Support for Organizational Unit (SearchRoot parameter)
         ADD Support for file input (File Parameter)
         ADD ParamaterSetNames and parameters GroupType/GroupScope/SearchScope
         REMOVE [mailaddress] type on $Emailfrom and $EmailTo to make the script available to PowerShell 2.0
         ADD Regular expression validation on $Emailfrom and $EmailTo
-    
+
     1.7 | 2013.11.23 | Francois-Xavier Cat (@lazywinadmin)
         ADD ValidateScript on File Parameter
         ADD Additional information about the Group in the Report
         CHANGE the format of the $changes output, it will now include the DateTime Property
         UPDATE Help
         ADD DisplayName Property in the report
-        
+
     1.8 | 2013.11.27 | Francois-Xavier Cat (@lazywinadmin)
         Minor syntax changes
         UPDATE Help
-    
+
     1.8.1 | 2013.12.29 | Francois-Xavier Cat (@lazywinadmin)
         Rename to AD-GROUP-Monitor_MemberShip
 
@@ -254,11 +239,11 @@
         ADD Support to export the report to a HTML file (-HTMLLog) It will save
             the report under the folder HTML
         ADD Support for alternative Email Encoding: Body and Subject. Default is ASCII.
-    
+
     2.0.3 | 2017.06.30 | @McAndersDK
         ADD 'IncludeMembers' Switch to list all members in the report.
         ADD 'AlwaysReport' switch to send report each run.
-        ADD 'OneReport' Switch to have it only send one email, with each group 
+        ADD 'OneReport' Switch to have it only send one email, with each group
             report in the mail as attachment.
         ADD 'ExtendedProperty' switch to add Enabled and PasswordExpired to the member list.
 
@@ -266,7 +251,7 @@
         FIX Minor typos
         Update CATCH Blow to throw the error
         Update verbose and messages to include the script name
-    
+
     2.0.5 | 2017.07.04 | @McAndersDK
         FIX member liste showing in report were the history, not current.
 
@@ -302,7 +287,7 @@ PARAM(
     [Parameter(ParameterSetName = "OU", Mandatory = $true)]
     [Alias('SearchBase')]
     [string[]]$SearchRoot,
-    
+
     [Parameter(ParameterSetName = "OU")]
     [ValidateSet("Base", "OneLevel", "Subtree")]
     [string]$SearchScope,
@@ -363,10 +348,10 @@ Begin
     try
     {
         # Retrieve the Script name
-        $ScriptName = $MyInvocation.MyCommand    
+        $ScriptName = $MyInvocation.MyCommand
 
         # Set the Paths Variables and create the folders if not present
-        $ScriptPath = (Split-Path -Path ((Get-Variable -Name MyInvocation).Value).MyCommand.Path)    
+        $ScriptPath = (Split-Path -Path ((Get-Variable -Name MyInvocation).Value).MyCommand.Path)
         $ScriptPathOutput = $ScriptPath + "\Output"
 
         if (-not(Test-Path -Path $ScriptPathOutput))
@@ -681,8 +666,8 @@ Process
                     $ImportCSV = Import-Csv -Path (Join-Path -Path $ScriptPathOutput -ChildPath $StateFile) -ErrorAction Stop -ErrorVariable ErrorProcessImportCSV
 
                     $Changes = Compare-Object -DifferenceObject $ImportCSV -ReferenceObject $Members -ErrorAction Stop -ErrorVariable ErrorProcessCompareObject -Property Name, SamAccountName, DN |
-                    Select-Object @{ Name = "DateTime"; Expression = { Get-Date -Format "yyyyMMdd-hh:mm:ss" } }, @{
-                        n = 'State'; e = {
+                    Select-Object -Property @{ Name = "DateTime"; Expression = { Get-Date -Format "yyyyMMdd-hh:mm:ss" } }, @{
+                        Name = 'State'; expression = {
                             if ($_.SideIndicator -eq "=>") { "Removed" }
                             else { "Added" }
                         }
@@ -752,7 +737,7 @@ Process
                                 $Output.Name = $obj.Name
                                 $Output.SamAccountName = $obj.SamAccountName
                                 $Output.DN = $obj.DistinguishedName
-                                
+
                                 if ($ExtendedProperty)
                                 {
                                     $Output.Enabled = $obj.Enabled
@@ -924,7 +909,7 @@ Process
             {
                 $attachments.Add($a.fullname)
             }
-            
+
             $mailParam = @{
                 To = $EmailTo
                 From = $EmailFrom
@@ -937,7 +922,7 @@ Process
             }
 
             Send-MailMessage @mailParam -UseSsl -BodyAsHtml
-            
+
             foreach ($a in $attachments)
             {
                 $a.Dispose()
@@ -950,10 +935,10 @@ Process
     catch
     {
         Write-Warning -Message "[$ScriptName][Process] Something went wrong"
-        throw $_    
+        throw $_
     } #catch
 } #Process
 End
 {
-    Write-Verbose -Message "[$ScriptName][End] Script Completed"    
+    Write-Verbose -Message "[$ScriptName][End] Script Completed"
 }

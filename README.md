@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/lazywinadmin/Monitor-ADGroupMembership/_apis/build/status/lazywinadmin.Monitor-ADGroupMembership?branchName=master)](https://dev.azure.com/lazywinadmin/Monitor-ADGroupMembership/_build/latest?definitionId=22&branchName=master)
+
 # Monitor-ADGroupMembership
 
 This PowerShell script help you monitor Active Directory groups and send an email when someone is performing a change on the membership.

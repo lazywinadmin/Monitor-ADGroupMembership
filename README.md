@@ -8,6 +8,7 @@ PowerShell script to monitor Active Directory groups and send an email when some
 * @lazywinadmin
 * @ifmorrison
 * @revoice1
+* @JaimeStill
 
 
 ## Installation

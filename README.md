@@ -1,24 +1,45 @@
 # Monitor-ADGroupMembership
 
-[Blog Articles on LazyWinAdmin.com](http://www.lazywinadmin.com/2013/11/update-powershell-monitor-and-report.html)
+This PowerShell script help you monitor Active Directory groups and send an email when someone is performing a change on the membership.
 
-PowerShell script to monitor Active Directory groups and send an email when someone is changing the membership
+(Shameless plug) I wrote a few articles on my blog about this script if you are interested to learn more about it: [LazyWinAdmin.com](http://www.lazywinadmin.com/2013/11/update-powershell-monitor-and-report.html)
 
-**Thanks to our contributors!:** 
+**Thanks to our contributors!:**
+
+Thanks to our wonderful contributors!! We extend our sincere appreciation to you!
+
 * @lazywinadmin
 * @ifmorrison
 * @McAndersDK
 * @revoice1
 * @JaimeStill
 
+Contributions are more than welcome! If you wish to contribute, you can take a look at the list of existing issues and submit a Pull Request.
 
 ## Installation
+
 #### Download from PowerShell Gallery (PowerShell v5+)
+
+You can install the script directly from the PowerShell Gallery.
+
 ``` powershell
 Install-Script -name Monitor-ADGroupMembership
 ```
 
+#### Manual Installation
+
+1. Navigate to the `source` folder
+1. Click on the `ps1` file
+1. Copy the content of the file into notepad and save the file with the name `Monitor-ADGroupMembership.ps1`
+1. You are ready to use it.
+
+``` powershell
+Install-Script -name Monitor-ADGroupMembership
+```
+
+
 ## Schedule the script
+
 On frequent question I get for this script is how to use the Task Scheduler to run this script.
 
 The trick here is to handle the quotes. You need to add back slashes "\" to handle them.
@@ -191,21 +212,21 @@ Here is the workflow of the script
 * 2.0	2014.05.04
  * ADD Support for ActiveDirectory module (AD module is use by default)
  * ADD failover to Quest AD Cmdlet if AD module is available
- * RENAME GetQADGroupParams variable to ADGroupParams	
-		
+ * RENAME GetQADGroupParams variable to ADGroupParams
+
 * 1.8 	2013.11.27
  * Minor syntax changes
  * UPDATE Help
  * Rename to AD-GROUP-Monitor_MemberShip
  * Update Notes
-	
+
 * 1.7 	2013.11.23
  * ADD ValidateScript on File Parameter
  * ADD Additional information about the Group in the Report
  * CHANGE the format of the $changes output, it will now include the DateTime Property
  * UPDATE Help
  * ADD DisplayName Property in the report
-		
+
 
 * 1.6 	2013.11.21
  * ADD Support for Organizational Unit (SearchRoot parameter)
@@ -222,7 +243,7 @@ Here is the workflow of the script
  * CHANGE the 'Change History' filename to "DOMAIN_GROUPNAME-ChangesHistory-yyyyMMdd-hhmmss.csv"
  * UPDATE Comments Based Help
  * ADD Some Variable Parameters
-	
+
 * 1.3 	2013.10.05
  * CHANGE in the PROCESS BLOCK, the TRY CATCH blocks and placed them inside the FOREACH instead of inside the TRY block
  * ADD support for Verbose

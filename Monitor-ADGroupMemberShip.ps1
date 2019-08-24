@@ -103,6 +103,9 @@
 
 .PARAMETER ExtendedProperty
     Specify if you want to add Enabled and PasswordExpired Attribute on members in the report
+
+.PARAMETER EmailCredential
+    Specify alternative credential to use. By default it will use the current context account.
     
 .EXAMPLE
     .\AD-GROUP-Monitor_MemberShip.ps1 -Group "FXGroup" -EmailFrom "From@Company.com" -EmailTo "To@Company.com" -EmailServer "mail.company.com"
@@ -149,6 +152,11 @@
 
     This will run the script against the group "Domain Admins" and send an email (using the encoding ASCII) to catfx@fx.lab using the address Reporting@fx.lab and the SMTP server 192.168.1.10. It will also save a local HTML report under the HTML Directory.
 
+.EXAMPLE
+    .\AD-GROUP-Monitor_MemberShip.ps1 -Group "FXGroup" -EmailFrom "From@Company.com" -EmailTo "To@Company.com" -EmailServer "mail.company.com" -EmailCredential (Get-Credential)
+
+    This will run the script against the group FXGROUP and send an email to To@Company.com using the address From@Company.com and the server mail.company.com, using the credential specified.
+
 .INPUTS
     System.String
 
@@ -168,18 +176,18 @@
         -A Scheduled Task (in order to check every X seconds/minutes/hours)
 
     VERSION HISTORY:
-    1.0     2012.02.01
+    1.0 | 2012.02.01 | Francois-Xavier Cat (@lazywinadmin)
         Initial Version
 
-    1.1     2012.03.13
+    1.1 | 2012.03.13 | Francois-Xavier Cat (@lazywinadmin)
         CHANGE to monitor both Domain Admins and Enterprise Admins
 
-    1.2     2013.09.23
+    1.2 | 2013.09.23 | Francois-Xavier Cat (@lazywinadmin)
         FIX issue when specifying group with domain 'DOMAIN\Group'
         CHANGE Script Format (BEGIN, PROCESS, END)
         ADD Minimal Error handling. (TRY CATCH)
 
-    1.3     2013.10.05
+    1.3 | 2013.10.05 | Francois-Xavier Cat (@lazywinadmin)
         CHANGE in the PROCESS BLOCK, the TRY CATCH blocks and placed
          them inside the FOREACH instead of inside the TRY block
         ADD support for Verbose
@@ -191,46 +199,46 @@
         ADD HTML header
         ADD HTML header for change history
 
-    1.4     2013.10.11
+    1.4 | 2013.10.11 | Francois-Xavier Cat (@lazywinadmin)
         CHANGE the 'Change History' filename to
          "DOMAIN_GROUPNAME-ChangesHistory-yyyyMMdd-hhmmss.csv"
         UPDATE Comments Based Help
         ADD Some Variable Parameters
         
-    1.5     2013.10.13
+    1.5 | 2013.10.13 | Francois-Xavier Cat (@lazywinadmin)
         ADD the full Parameter Names for each Cmdlets used in this script
         ADD Alias to the Group ParameterName
         
-    1.6     2013.11.21
+    1.6 | 2013.11.21 | Francois-Xavier Cat (@lazywinadmin)
         ADD Support for Organizational Unit (SearchRoot parameter)
         ADD Support for file input (File Parameter)
         ADD ParamaterSetNames and parameters GroupType/GroupScope/SearchScope
         REMOVE [mailaddress] type on $Emailfrom and $EmailTo to make the script available to PowerShell 2.0
         ADD Regular expression validation on $Emailfrom and $EmailTo
     
-    1.7     2013.11.23
+    1.7 | 2013.11.23 | Francois-Xavier Cat (@lazywinadmin)
         ADD ValidateScript on File Parameter
         ADD Additional information about the Group in the Report
         CHANGE the format of the $changes output, it will now include the DateTime Property
         UPDATE Help
         ADD DisplayName Property in the report
         
-    1.8     2013.11.27
+    1.8 | 2013.11.27 | Francois-Xavier Cat (@lazywinadmin)
         Minor syntax changes
         UPDATE Help
     
-    1.8.1 | 2013.12.29
+    1.8.1 | 2013.12.29 | Francois-Xavier Cat (@lazywinadmin)
         Rename to AD-GROUP-Monitor_MemberShip
 
-    1.8.2     2014.02.17
+    1.8.2 | 2014.02.17 | Francois-Xavier Cat (@lazywinadmin)
         Update Notes
 
-    2.0    2014.05.04
+    2.0.0 | 2014.05.04 | Francois-Xavier Cat (@lazywinadmin)
         ADD Support for ActiveDirectory module (AD module is use by default)
         ADD failover to Quest AD Cmdlet if AD module is available
         RENAME GetQADGroupParams variable to ADGroupParams
 
-    2.0.1     2015.01.05
+    2.0.1 | 2015.01.05 | Francois-Xavier Cat (@lazywinadmin)
         REMOVE the DisplayName property from the email
         ADD more clear details/Comments
         RENAME a couple of Verbose and Warning Messages
@@ -240,42 +248,37 @@
         ADD Check to validate data added to $Group is valid
         ADD Server Parameter to be able to specify a domain controller
 
-    2.0.2    2015.01.14
+    2.0.2 | 2015.01.14 | Francois-Xavier Cat (@lazywinadmin)
         FIX an small issue with the $StateFile which did not contains the domain
         ADD the property Name into the final output.
         ADD Support to export the report to a HTML file (-HTMLLog) It will save
             the report under the folder HTML
         ADD Support for alternative Email Encoding: Body and Subject. Default is ASCII.
     
-    2.0.3   2017.06.30
+    2.0.3 | 2017.06.30 | @McAndersDK
         ADD 'IncludeMembers' Switch to list all members in the report.
         ADD 'AlwaysReport' switch to send report each run.
         ADD 'OneReport' Switch to have it only send one email, with each group 
             report in the mail as attachment.
         ADD 'ExtendedProperty' switch to add Enabled and PasswordExpired to the member list.
 
-    2.0.4   2017.06.30
+    2.0.4 | 2017.06.30 | Francois-Xavier Cat (@lazywinadmin)
         FIX Minor typos
         Update CATCH Blow to throw the error
         Update verbose and messages to include the script name
     
-    2.0.5 2017.07.04
+    2.0.5 | 2017.07.04 | @McAndersDK
         FIX member liste showing in report were the history, not current.
 
-    2.0.6 2019.08.13 @revoice1
+    2.0.6 | 2019.08.13 | @revoice1
         Fix issue where $Members only contain one item
         https://github.com/lazywinadmin/Monitor-ADGroupMembership/pull/42/files
 
-    2.0.7 2019.08.23 @JaimeStill
-        Pull Request: https://github.com/lazywinadmin/Monitor-ADGroupMembership/pull/44
-        BREAKING CHANGE - Use Send-MailMessage instead of SMTP Client
-            This allows support for Office365
-            https://github.com/lazywinadmin/Monitor-ADGroupMembership/issues/43
-        Fix some format
-
-    2.0.8 2019.08.23 @lazywinadmin
-        Replace Tabs per 4 spaces
-
+    2.0.7 | 2019.08.23 | Jaime Still (@JaimeStill), Francois-Xavier Cat (@lazywinadmin)
+        Use Send-MailMessage instead of SMTP Client (@JaimeStill) github.com/lazywinadmin/Monitor-ADGroupMembership/issues/43
+        Fix some formatting (@JaimeStill)
+        Replace Tabs per 4 spaces (@lazywinadmin)
+        Add EmailCredential parameter (@lazywinadmin)
 
     TODO:
         -Add Switch to make the Group summary Optional (info: Description,DN,CanonicalName,SID, Scope, Type)
@@ -351,13 +354,14 @@ PARAM(
     [Switch]$OneReport,
 
     [Parameter()]
-    [Switch]$ExtendedProperty
+    [Switch]$ExtendedProperty,
+
+    [System.Management.Automation.PSCredential]$EmailCredential = [System.Management.Automation.PSCredential]::Empty
 )
 Begin
 {
     try
     {
-        $EmailCred = (Get-Credential);
         # Retrieve the Script name
         $ScriptName = $MyInvocation.MyCommand;
 
@@ -837,7 +841,7 @@ Process
                                 Body = $Body
                                 SmtpServer = $EmailServer
                                 Port = $EmailPort
-                                Credential = $EmailCred
+                                Credential = $EmailCredential
                             }
 
                             Send-MailMessage @mailParam -UseSsl -BodyAsHtml;
@@ -928,7 +932,7 @@ Process
                 Body = "<h2>See Report in Attachment</h2>"
                 SmtpServer = $EmailServer
                 Port = $EmailPort
-                Credential = $EmailCred
+                Credential = $EmailCredential
                 Attachments = $attachments
             }
 

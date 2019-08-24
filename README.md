@@ -7,6 +7,7 @@ PowerShell script to monitor Active Directory groups and send an email when some
 **Thanks to our contributors!:** 
 * @lazywinadmin
 * @ifmorrison
+* @McAndersDK
 * @revoice1
 * @JaimeStill
 
